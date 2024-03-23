@@ -1,9 +1,9 @@
-const { Router } = require("express")
-const router = Router()
+const router = require("./index")
 const {UserType, SignInType} = require("../utils/types")
 const User = require('../models/users')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs');
+const authMiddleware = require("../middleware/auth")
 
 router.post("/signup", async (req,res) => {
     const {username, email, password} = req.body
@@ -31,7 +31,7 @@ router.post("/signup", async (req,res) => {
         })
     
         await newUser.save()
-        return res.status(202).json({success: "User created successfully"})
+        return res.status(202).json({success: "User created successfully", userId: newUser._id})
     } catch (error) {
         console.error(error)
         return res.status(500).json({error: "Server Error"})
@@ -72,3 +72,23 @@ router.post('/signin', async (req, res) => {
         return res.status(500).json({error: "Internal Server Error"})
     }
 })
+
+router.patch("/user", authMiddleware, async(req, res) => {
+    const {username, password} = req.body
+    const parsed = UpdateUserDetailsType.safeParse({username, password})
+
+    if(parsed.error){
+        return res.status(400).json({error: "Invalid Data"})
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10)
+        await User.updateOne({_id: req.user.userId}, {username: username, password: hashedPassword})
+        return res.status(200).json({success: "User details updated"})
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({error: "Internal Server Error", error})
+    }
+})
+
+module.exports = router;
