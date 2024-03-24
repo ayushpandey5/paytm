@@ -1,9 +1,11 @@
-const router = require("./index")
-const {UserType, SignInType} = require("../utils/types")
+const { Router } = require('express');
+const router = Router();
+const {UserType, SignInType, UpdateUserDetailsType} = require("../utils/types")
 const User = require('../models/users')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs');
-const authMiddleware = require("../middleware/auth")
+const authMiddleware = require("../middleware/auth");
+const Account = require('../models/account');
 
 router.post("/signup", async (req,res) => {
     const {username, email, password} = req.body
@@ -24,13 +26,17 @@ router.post("/signup", async (req,res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10)
     
-        const newUser = User({
+        const newUser = await User.create({
             username: username,
             email:email,
             password: hashedPassword
         })
     
-        await newUser.save()
+        await Account.create({
+            userId: newUser._id,
+            balance: 1 + Math.random() * 10000
+        })
+
         return res.status(202).json({success: "User created successfully", userId: newUser._id})
     } catch (error) {
         console.error(error)
@@ -63,7 +69,7 @@ router.post('/signin', async (req, res) => {
         }
 
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET)
-        user.token = token
+        user.tokens.push(token)
         await user.save()
         return res.status(200).json({success: `User logged in and ${token} generated`})
 
@@ -80,10 +86,10 @@ router.patch("/user", authMiddleware, async(req, res) => {
     if(parsed.error){
         return res.status(400).json({error: "Invalid Data"})
     }
-
+    const userId = req.userId
     try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        await User.updateOne({_id: req.user.userId}, {username: username, password: hashedPassword})
+        await User.updateOne({_id: userId}, {username: username, password: hashedPassword})
         return res.status(200).json({success: "User details updated"})
     } catch (error) {
         console.error(error)

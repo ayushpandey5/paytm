@@ -1,6 +1,6 @@
 const { Router } = require("express")
 const router = Router()
-const userRoter = require("./users")
+const userRouter = require("./users")
 
 router.use("/user", userRouter)
 

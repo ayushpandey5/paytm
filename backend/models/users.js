@@ -14,9 +14,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    tokens: {
+    tokens: [{
         type: String
-    }
+    }]
 })
 
 const User = mongoose.model("User", UserSchema)
