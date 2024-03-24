@@ -10,7 +10,6 @@ export function Signin() {
     <div className="rounded-lg bg-white w-80 text-center p-8">
        <Heading label="Sign In"/>
        <Subheading label="Enter your credentials to login to your account"/>
-       <InputBox placeholder="John" label="Username"/>
        <InputBox placeholder="user@gmail.com" label="Email"/>
        <InputBox placeholder="******" label="Password"/>
         <Button label="Sign In"/>
