@@ -97,24 +97,27 @@ router.patch("/user", authMiddleware, async(req, res) => {
     }
 })
 
-router.get("/bulk", async(req, res) => {
-    const filter = req.query.filter || ""
+router.get("/bulk", async (req, res) => {
+    const filter = req.query.filter || "";
+
     const users = await User.find({
         $or: [{
             username: {
-                $regex: filter
-            },
+                "$regex": filter
+            }
+        }, {
             email: {
-                $regex: filter
+                "$regex": filter
             }
         }]
     })
 
-    res.status(200).json({
-        users: users.map(user => {
-            return {username: user.username,
-            _id: user._id }
-        })
+    res.json({
+        user: users.map(user => ({
+            username: user.username,
+            email: user.email,
+            _id: user._id
+        }))
     })
 })
 
