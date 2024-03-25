@@ -4,6 +4,8 @@ import {InputBox} from "../components/InputBox"
 import {Subheading} from "../components/Subheading"
 import {BottomWarning} from "../components/BottomWarning"
 import { useForm, Controller } from "react-hook-form"
+import axios from 'axios';
+import { Dashboard } from "./Dashboard"
 
 export function Signin() {
     const { control, handleSubmit } = useForm({
@@ -13,7 +15,17 @@ export function Signin() {
         },
       })
 
-      const onSubmit = (data) => console.log(data)
+      const onSubmit = async (data) => {
+        const response = await axios.post("http://localhost:3000/api/v1/user/signin",{
+            email: data.email,
+            password: data.password
+        })
+            if(response.status == 200){
+                window.localStorage.setItem("token", response.data.token)
+                console.log(response.data.token)
+                //navigate(Dashboard)
+            }
+        }      
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">

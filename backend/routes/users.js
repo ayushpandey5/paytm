@@ -71,7 +71,7 @@ router.post('/signin', async (req, res) => {
         const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET)
         user.tokens.push(token)
         await user.save()
-        return res.status(200).json({success: `User logged in and ${token} generated`})
+        return res.status(200).json({success: `User logged in `, token: token})
 
     } catch (error) {
         console.error(error)
@@ -95,6 +95,27 @@ router.patch("/user", authMiddleware, async(req, res) => {
         console.error(error)
         return res.status(500).json({error: "Internal Server Error", error})
     }
+})
+
+router.get("/bulk", async(req, res) => {
+    const filter = req.query.filter || ""
+    const users = await User.find({
+        $or: [{
+            username: {
+                $regex: filter
+            },
+            email: {
+                $regex: filter
+            }
+        }]
+    })
+
+    res.status(200).json({
+        users: users.map(user => {
+            return {username: user.username,
+            _id: user._id }
+        })
+    })
 })
 
 module.exports = router;
