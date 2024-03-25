@@ -1,12 +1,18 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "./Button"
+import axios from "axios"
 
 export const Users = () => {
     // Replace with backend call
-    const [users, setUsers] = useState([{
-        username: "Ayush",
-        _id: 1
-    }]);
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        axios.get("http://localhost:3000/api/v1/user/bulk")
+        .then(response => {
+            console.log(response.data.user)
+            setUsers(response.data.user)
+        })
+    }, [])
 
     return <>
         <div className="font-bold mt-6 text-lg">
