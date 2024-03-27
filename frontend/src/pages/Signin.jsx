@@ -6,8 +6,12 @@ import {BottomWarning} from "../components/BottomWarning"
 import { useForm, Controller } from "react-hook-form"
 import axios from 'axios';
 import { Dashboard } from "./Dashboard"
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 
 export function Signin() {
+    const navigate = useNavigate()
+    const [error, setError] = useState("");
     const { control, handleSubmit } = useForm({
         defaultValues: {
           email: "",
@@ -16,15 +20,18 @@ export function Signin() {
       })
 
       const onSubmit = async (data) => {
-        const response = await axios.post("http://localhost:3000/api/v1/user/signin",{
+        try {
+            const response = await axios.post("http://localhost:3000/api/v1/user/signin",{
             email: data.email,
             password: data.password
         })
-            if(response.status == 200){
-                window.localStorage.setItem("token", response.data.token)
-                console.log(response.data.token)
-                //navigate(Dashboard)
-            }
+            window.localStorage.setItem("token", response.data.token)
+            console.log(response.data.token)
+            navigate('/dashboard');
+        } catch (error) {
+            console.error(error)
+            setError("Error Loggin In.....")
+        }
         }      
 
   return (
@@ -48,7 +55,7 @@ export function Signin() {
     <Button label="Sign In" type="submit"/>
     </form>
        
-       
+        {error ? <span>{error}</span> : null}
         <BottomWarning label="Don't have an account?" to="/signup" buttonText="Sign up"/>
         </div>
     </div>
