@@ -11,6 +11,7 @@ export const SendMoney = () => {
     const name = searchParams.get("name")
     const [amount, setAmout] = useState("")
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
     return <div className="flex justify-center h-screen bg-gray-100">
         <div className="h-full flex flex-col justify-center">
             <div
@@ -53,6 +54,8 @@ export const SendMoney = () => {
                             setLoading(false)
                         }).then(() => {
                             navigate('/dashboard')
+                        }).catch(()=> {
+                            setError(true)
                         })
 
                         
@@ -67,6 +70,8 @@ export const SendMoney = () => {
                             </svg>
                             <span className="sr-only">Loading...</span>
                         </div> : null}
+
+                        {error ?  <span>Error Sending Money</span> : null }
                         
 
                     </div>
