@@ -97,19 +97,16 @@ router.patch("/user", authMiddleware, async(req, res) => {
     }
 })
 
-router.get("/bulk", async (req, res) => {
+router.get("/bulk",authMiddleware, async (req, res) => {
     const filter = req.query.filter || "";
 
     const users = await User.find({
-        $or: [{
-            username: {
-                "$regex": filter
+        $and: [
+            { _id: { $ne: req.userId }},
+            {$or: [{ username: { "$regex": filter }}, 
+                        {email: { "$regex": filter }}]
             }
-        }, {
-            email: {
-                "$regex": filter
-            }
-        }]
+            ]
     })
 
     res.json({
